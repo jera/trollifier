@@ -1,0 +1,21 @@
+GEM
+  remote: http://rubygems.org/
+  specs:
+    json (1.5.1)
+    rack (1.2.2)
+    rack-test (0.5.7)
+      rack (>= 1.0)
+    rmagick (2.13.1)
+    sinatra (1.2.1)
+      rack (~> 1.1)
+      tilt (>= 1.2.2, < 2.0)
+    tilt (1.2.2)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  json
+  rack-test
+  rmagick
+  sinatra

@@ -2,34 +2,78 @@ require 'RMagick'
 
 class Trollifier
   def self.challenge_accepted(params)
+    validate
+    
     image       = Magick::Image.new(800,600)
     image_id    = generate_id(5)
     image_path  = File.join(IMAGE_DIR,"#{image_id}.#{IMAGE_EXTENSION}")
     
     params[:data].each do |data|
       if have_image?(data)
-        join_images(image,read_image(data[:image]),data).write(image_path)
-        image = image.write(image_path)
+        join_images(image,read_image(data[:image]),data)
       end
+      
+      
+      if have_text?(data)
+        write_in_image(image,data)
+      end
+      
+      image = image.write(image_path)
+      
+      
     end
     
     image_id
   end
   
-  
   private
   
-  def self.join_images(image,image_over,options_image_over={})
-    options_image_over = {
+  def self.join_images(image,image_over,data={})
+    data = {
       :x => 0,
       :y => 0,
       :width => image_over.columns
-    }.merge(options_image_over)
+    }.merge(data)
     
-    scale = options_image_over[:width].to_f / image_over.columns
-    image_over.resize!(scale)
+    scale!(image_over,data)
+
+    image.composite!(image_over, data[:x], data[:y], Magick::OverCompositeOp)
+  end
+  
+  def self.write_in_image(image,data)
+    text = Magick::Draw.new
+    text.annotate(image, data[:width], 0, (data[:x]+1), (data[:y]+10), data[:text]) {
+      self.font_family  = 'Courier new'
+      self.font_style   = Magick::NormalStyle
+      self.font_weight  = 400
+      self.pointsize    = 12
+      self.stroke       = 'transparent'
+    }
     
-    image.composite!(image_over, options_image_over[:x], options_image_over[:y], Magick::OverCompositeOp)
+  end
+  
+  def self.have_image?(data)
+    data && data.has_key?(:image) && data[:image].to_s != ""
+  end
+  
+  def self.have_text?(data)
+    data && data.has_key?(:text) && data[:text].to_s != ""
+  end
+  
+  def self.scale!(image,data)
+    image.resize!(scale(image,data))
+    data[:height] = image.rows
+  end
+  
+  def self.scale(image,data)
+    (data[:width].to_f / image.columns)
+  end
+  
+  def self.read_image(image)
+    path_image = File.join(RAGE_COMIC_DIR,"#{image}.#{IMAGE_EXTENSION}")
+    if File.exists?(path_image)
+      Magick::Image.read(path_image).first
+    end
   end
   
   # author http://snippets.dzone.com/posts/show/491
@@ -40,14 +84,13 @@ class Trollifier
       newpass
   end
   
-  def self.read_image(image)
-    path_image = File.join(RAGE_COMIC_DIR,"#{image}.#{IMAGE_EXTENSION}")
-    if File.exists?(path_image)
-      Magick::Image.read(path_image).first
+  def self.validate
+    unless File.exists?(IMAGE_DIR)
+      raise "Create '#{IMAGE_DIR}' directory"
     end
-  end
-  
-  def self.have_image?(data)
-    data && data.has_key?(:image) && data[:image].to_s != ""
+    
+    unless File.exists?(RAGE_COMIC_DIR)
+      raise "Create '#{RAGE_COMIC_DIR}' directory"
+    end
   end
 end

@@ -9,19 +9,15 @@ class Trollifier
     image_path  = File.join(IMAGE_DIR,"#{image_id}.#{IMAGE_EXTENSION}")
     
     params[:data].each do |data|
-      puts "#{data.inspect}"
       if have_image?(data)
         join_images(image,read_image(data['image']),data)
       end
-      
       
       if have_text?(data)
         write_in_image(image,data)
       end
       
       image = image.write(image_path)
-      
-      
     end
     
     image_id

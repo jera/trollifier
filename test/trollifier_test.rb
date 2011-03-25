@@ -6,7 +6,7 @@ class TrollifierTest < Test::Unit::TestCase
   end
   
   def test_have_image
-    assert Trollifier.have_image?({:image => 1}), 'Have image'
+    assert Trollifier.have_image?({'image' => 1}), 'Have image'
   end
   
   def test_join_two_images
@@ -22,7 +22,7 @@ class TrollifierTest < Test::Unit::TestCase
     
     
   def test_create_image_with_one_image_component
-    params = { :data => [ {:x => 10, :y => 100, :width => 200, :image => 1} ] }
+    params = { :data => [ {'x' => 10, 'y' => 100, 'width' => 200, 'image' => 1} ] }
     
     id = Trollifier.challenge_accepted(params)
     image_path = File.join(IMAGE_DIR,"#{id}.#{IMAGE_EXTENSION}")
@@ -34,8 +34,8 @@ class TrollifierTest < Test::Unit::TestCase
   
   def test_create_image_with_two_images_components
     params = { :data => [ 
-      {:x => 10, :y => 100, :width => 200, :image => 1},
-      {:x => 100, :y => 120, :width => 100, :image => 2},
+      {'x' => 10, 'y' => 100, 'width' => 200, 'image' => 1},
+      {'x' => 100, 'y' => 120, 'width' => 100, 'image' => 2},
     ] }
     
     id = Trollifier.challenge_accepted(params)
@@ -48,7 +48,7 @@ class TrollifierTest < Test::Unit::TestCase
   
   def test_create_image_with_one_image_and_text_component
     params = {:data => 
-      [{:x => 50, :y => 25, :width => 300, :image => 2, :text => "I'm a php programmer :("}]
+      [{'x' => 50, 'y' => 25, 'width' => 300, 'image' => 2, 'text' => "I'm a php programmer :("}]
     }
     
     id = Trollifier.challenge_accepted(params)
@@ -61,7 +61,7 @@ class TrollifierTest < Test::Unit::TestCase
   
   def test_create_image_with_text_component
     params = {:data => 
-      [{:x => 100, :y => 50, :width => 200, :text => "I'm a php programmer :("}]
+      [{'x' => 100, 'y' => 50, 'width' => 200, 'text' => "I'm a php programmer :("}]
     }
     
     id = Trollifier.challenge_accepted(params)
@@ -74,10 +74,10 @@ class TrollifierTest < Test::Unit::TestCase
   
   def test_create_image_with_two_images_and_two_texts_components
     params = { :data => [ 
-      {:x => 10,  :y => 100, :width => 200, :image => 1},
-      {:x => 100, :y => 120, :width => 100, :image => 2},
-      {:x => 73,  :y => 85, :width => 200,  :text => "And i will be trolled"},
-      {:x => 100, :y => 400, :width => 200, :text => "I should hate ruby", :image => 2}
+      {'x' => 10,  'y' => 100, 'width' => 200, 'image' => 1},
+      {'x' => 100, 'y' => 120, 'width' => 100, 'image' => 2},
+      {'x' => 73,  'y' => 85, 'width' => 200,  'text' => "And i will be trolled"},
+      {'x' => 100, 'y' => 400, 'width' => 200, 'text' => "I should hate ruby", 'image' => 2}
     ] }
     
     id = Trollifier.challenge_accepted(params)
@@ -99,7 +99,7 @@ class TrollifierTest < Test::Unit::TestCase
   end
   
   def rollback_image(image_path)
-    system "open #{image_path}"
-    # File.unlink(image_path)
+    # system "open #{image_path}"
+    File.unlink(image_path)
   end
 end

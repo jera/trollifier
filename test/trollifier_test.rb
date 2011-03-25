@@ -48,7 +48,10 @@ class TrollifierTest < Test::Unit::TestCase
   
   def test_create_image_with_one_image_and_text_component
     params = {:data => 
-      [{'x' => 50, 'y' => 25, 'width' => 300, 'image' => 2, 'text' => "I'm a php programmer :("}]
+      [
+        {'x' => 50, 'y' => 25, 'width' => 300, 'image' => 2},
+        {'x' => 50, 'y' => 25, 'width' => 300, 'text' => "I'm a php programmer :("}
+      ]
     }
     
     id = Trollifier.challenge_accepted(params)
@@ -76,8 +79,9 @@ class TrollifierTest < Test::Unit::TestCase
     params = { :data => [ 
       {'x' => 10,  'y' => 100, 'width' => 200, 'image' => 1},
       {'x' => 100, 'y' => 120, 'width' => 100, 'image' => 2},
-      {'x' => 73,  'y' => 85, 'width' => 200,  'text' => "And i will be trolled"},
-      {'x' => 100, 'y' => 400, 'width' => 200, 'text' => "I should hate ruby", 'image' => 2}
+      {'x' => 73,  'y' => 85,  'width' => 200,  'text' => "And i will be trolled"},
+      {'x' => 100, 'y' => 400, 'width' => 200, 'image' => 2},
+      {'x' => 100, 'y' => 400, 'width' => 200, 'text' => "I should hate ruby"}
     ] }
     
     id = Trollifier.challenge_accepted(params)

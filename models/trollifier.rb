@@ -4,16 +4,14 @@ class Trollifier
   def self.challenge_accepted(params)
     validate
     
-    image       = Magick::Image.new(800,600)
+    image       = Magick::Image.new(params[:width] || 800,params[:height] || 600)
     image_id    = generate_id(5)
     image_path  = File.join(IMAGE_DIR,"#{image_id}.#{IMAGE_EXTENSION}")
     
     params[:data].each do |data|
       if have_image?(data)
         join_images(image,read_image(data['image']),data)
-      end
-      
-      if have_text?(data)
+      elsif have_text?(data)
         write_in_image(image,data)
       end
       

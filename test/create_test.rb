@@ -14,7 +14,8 @@ class MainTest < Test::Unit::TestCase
       { :data =>
         [
           {:x => 10, :y => 100, :width => 200, :image => 1},
-          {:x => 220, :y => 10, :width => 300, :image => 2, :text => "I'm a php programmer :("},
+          {:x => 220, :y => 10, :width => 300, :image => 2},
+          {:x => 220, :y => 10, :width => 300, :text => "I'm a php programmer :("},
           {:x => 350, :y => 400, :text => "Sad but true"}
         ]
       }

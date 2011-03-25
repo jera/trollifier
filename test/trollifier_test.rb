@@ -83,12 +83,37 @@ class TrollifierTest < Test::Unit::TestCase
     id = Trollifier.challenge_accepted(params)
     image_path = File.join(IMAGE_DIR,"#{id}.#{IMAGE_EXTENSION}")
     
-    assert File.exists?(image_path), 'File image created'
+    assert File.exists?(image_path), 'File with two images and two texts created'
     
     rollback_image(image_path)
   end
   
+  def test_create_image_with_image64_and_text
+    img = Base64.encode64(File.open(File.join(TEST_IMAGES,'small_square.png')){ |io| io.read })
+    
+    params = { :data => [
+      {'x' => 10,  'y' => 100, 'width' => 200, 'image' => img},
+      {'x' => 73,  'y' => 85, 'width' => 200,  'text' => "And i will be trolled"}
+    ] }
+    
+    id = Trollifier.challenge_accepted(params)
+    image_path = File.join(IMAGE_DIR,"#{id}.#{IMAGE_EXTENSION}")
+    
+    assert File.exists?(image_path), 'File image with  base64 informations and text created'
+    rollback_image(image_path)
+  end
   
+  def test_create_image_with_image64
+    img = Base64.encode64(File.open(File.join(TEST_IMAGES,'small_square.png')){ |io| io.read })
+    
+    params = { :data => [{'x' => 10,  'y' => 100, 'width' => 200, 'image' => img}] }
+    
+    id = Trollifier.challenge_accepted(params)
+    image_path = File.join(IMAGE_DIR,"#{id}.#{IMAGE_EXTENSION}")
+    
+    assert File.exists?(image_path), 'File image with base64'
+    rollback_image(image_path)
+  end
   
   private
   

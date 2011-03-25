@@ -70,6 +70,8 @@ class Trollifier
     path_image = File.join(RAGE_COMIC_DIR,"#{image}.#{IMAGE_EXTENSION}")
     if File.exists?(path_image)
       Magick::Image.read(path_image).first
+    else
+      Magick::Image.read_inline(image).first
     end
   end
   

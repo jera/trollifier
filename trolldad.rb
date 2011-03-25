@@ -20,5 +20,5 @@ post '/create' do
     faces << v
   end
   
-  Trollifier.challenge_accepted({ :data => faces })
+  Trollifier.challenge_accepted({ :data => faces, :width => params[:width].to_i, :height => params[:height].to_i })
 end

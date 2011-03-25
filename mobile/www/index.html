@@ -1,0 +1,260 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+  <head>
+	<!-- Change this if you want to allow scaling -->
+    <meta name="viewport" content="width=default-width; user-scalable=no" />
+
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+
+    <title>Trollifier</title>
+	
+	<!-- iPad/iPhone specific css below, add after your main css >
+	<link rel="stylesheet" media="only screen and (max-device-width: 1024px)" href="ipad.css" type="text/css" />		
+	<link rel="stylesheet" media="only screen and (max-device-width: 480px)" href="iphone.css" type="text/css" />		
+	-->
+	<!-- If you application is targeting iOS BEFORE 4.0 you MUST put json2.js from http://www.JSON.org/json2.js into your www directory and include it here -->
+	<script type="text/javascript" charset="utf-8" src="phonegap.0.9.4.min.js"></script>
+	<!--
+	<script type="text/javascript" charset="utf-8" src="multitouch-fake.js"></script>
+	-->
+	<script type="text/javascript" charset="utf-8" src="jquery.js"></script>
+
+	<script type="text/javascript" charset="utf-8">
+		var zIndexCount = 1;
+		var moving = {};
+		var faces  = new Array();
+		
+		function touchHandler(e) {
+			if (e.type == "touchstart") {
+				for (var i = 0; i < e.touches.length; i++) {
+					if (e.touches[i].target.className == "publish") {
+						publish();
+						return;
+					}
+					
+					if (e.touches[i].target.className == "photo") {
+						takeAPhoto();
+						return;
+					}
+					
+					if (e.touches[i].target.className == "library_image") {
+						jq_img = $(e.touches[i].target)
+						createImage(e.touches[i].target.src, jq_img.attr("face-id"))
+						return;
+					}
+					
+					if (e.touches[i].target.className == "clear") {
+						clearScreen();
+						return;
+					}
+					
+				    // for each "movable" touch event:
+					if (e.touches[i].target.className == "movable") {
+						var id = e.touches[i].identifier;
+						
+						// record initial data in the "moving" hash
+						moving[id] = {
+							identifier: id,
+							target:   	e.touches[i].target,
+							mouse:		{ x: e.touches[i].clientX,		y: e.touches[i].clientY },
+							position:	{ x: e.touches[i].target.xfmTX, y: e.touches[i].target.xfmTY },
+							rotation: 	e.touches[i].target.xfmR,
+							scale: 		e.touches[i].target.xfmS
+						};
+						
+						// move to the front
+						if(zIndexCount > 1000)
+							zIndexCount = 1000;
+						moving[id].target.style.zIndex = zIndexCount++;
+						
+						// reset rotate/scale mode to off
+						moving[id].rotateScaleMode = false;
+					}
+				}
+			}
+			else if (e.type == "touchmove") {
+			    // if there are two touchs and both are on the *same* element, we're in rotate/scale mode
+				if (e.touches.length == 2 && e.touches[0].target == e.touches[1].target) {
+					var idA = e.touches[0].identifier,
+					idB = e.touches[1].identifier;
+					
+					// if we've previously recorded initial rotate/scale mode data:
+					if (moving[idA].rotateScaleMode && moving[idB].rotateScaleMode) {
+					    // calculate translation, rotation, and scale
+						moving[idA].target.xfmTX = ((moving[idA].positionCenter.x - moving[idA].mouseCenter.x) + ((e.touches[0].clientX + e.touches[1].clientX) / 2));
+						moving[idA].target.xfmTY = ((moving[idA].positionCenter.y - moving[idA].mouseCenter.y) + ((e.touches[0].clientY + e.touches[1].clientY) / 2));
+						moving[idA].target.xfmR = moving[idA].rotation + e.rotation;
+						moving[idA].target.xfmS = moving[idA].scale * e.scale;
+						
+						updateTransform(moving[idA].target);
+					}
+					else {
+						// set rotate/scale mode to on
+						moving[idA].rotateScaleMode	= moving[idB].rotateScaleMode	= true;
+						// record initial rotate/scale mode data
+						moving[idA].mouseCenter		= moving[idB].mouseCenter		= {
+							x: (e.touches[0].clientX + e.touches[1].clientX) / 2,
+							y: (e.touches[0].clientY + e.touches[1].clientY) / 2,
+						}
+						moving[idA].positionCenter	= moving[idB].positionCenter	= {
+							x: moving[idA].target.xfmTX,
+							y: moving[idA].target.xfmTY
+						}
+					}
+				}
+				else {
+					for (var i = 0; i < e.touches.length; i++) {
+						var id = e.touches[i].identifier;
+						
+						// for each touch event:
+						if (moving[id]) {
+							// reset rotate/scale mode to off
+							moving[id].rotateScaleMode = false;
+							// calculate translation, leave rotation and scale alone
+							moving[id].target.xfmTX = ((moving[id].position.x - moving[id].mouse.x) + e.touches[i].clientX);
+							moving[id].target.xfmTY = ((moving[id].position.y - moving[id].mouse.y) + e.touches[i].clientY);
+							moving[id].target.style.zIndex = 1;
+							updateTransform(moving[id].target);
+						}
+					}
+				}
+			}
+			else if (e.type == "touchend" || e.type == "touchcancel") {
+			    // clear each from the "moving" hash
+				for (var i = 0; i < e.touches.length; i++)
+				delete moving[e.touches[i].identifier];
+			}
+			
+			e.preventDefault();
+		}
+		
+		// set the transform style property based on xfm element properties
+		function updateTransform(element) {
+			element.style['-webkit-transform'] =
+			'translate('+element.xfmTX+'px,'+element.xfmTY+'px) '+
+			'scale('+element.xfmS+') '+
+			'rotate('+element.xfmR+'deg)';
+		}
+		
+		function createImage(imageSrc, imagemId) {
+			img = document.createElement("img");
+			img.src = imageSrc;
+			img.id  = imagemId;
+			img.className = "movable";
+			img.xfmTX = 1.0*(window.innerWidth-240);
+			img.xfmTY = 1.0*(window.innerHeight-240);
+			img.xfmR = 0;
+			img.xfmS = 1.0;
+			// img.xfmTX = Math.random()*(window.innerWidth-240);
+			// img.xfmTY = Math.random()*(window.innerHeight-240);
+			// img.xfmR = Math.random()*180-90;
+			// img.xfmS = Math.random()/2+0.5;
+			img.setAttribute("style", "position: absolute; top: 0px; left: 0px; z-index: 999;");
+			// document.body.appendChild(img);
+			document.getElementById("comic").appendChild(img);
+			updateTransform(img);
+			
+			faces.push(img)
+		}
+		
+		function init() {
+			// touch event listeners
+			document.addEventListener("touchstart", touchHandler, false);
+			document.addEventListener("touchmove", touchHandler, false);
+			document.addEventListener("touchend", touchHandler, false);
+			document.addEventListener("touchcancel", touchHandler, false);
+			
+			createImage('faces/trollface.gif', '1')
+		}
+		
+		function clearScreen() {
+			for(i=0; i<faces.length; i++) {
+				$(faces[i]).remove();
+			}
+			faces = new Array();
+		}
+		
+		function takeAPhoto() {
+			navigator.camera.getPicture(onSuccess, onFail, { quality: 50 }); 
+		}
+		
+		function onSuccess(imageData) {
+			createImage("data:image/jpeg;base64," + imageData);
+		}
+		
+		function onFail(message) {
+			alert('Failed because: ' + message);
+		}
+	</script>
+
+	<script	type="text/javascript" charset="utf-8">	
+		var serverHost = "http://192.168.1.76:4567/create"
+	
+		function publish() {
+			// $(".publish").attr("disabled", "disabled");
+		
+			params = new Array();
+			
+			for(i=0;i<faces.length;i++) {
+				params.push({ x: faces[i].xfmTX, y: faces[i].xfmTY, width: faces[i].width, height: faces[i].height, scale: faces[i].xfmS, rotate: faces[i].xfmR, image: faces[i].id })
+			}
+			
+			$.post(serverHost, { width: $(window).width(), height: $(window).height(),  data: params }, function(data) {
+				// $(".publish").removeAttr("disabled");
+				alert("fuck yeah!");
+			})
+			.error(function() { 
+				alert("fuuuuuuuuuuuuuuu!"); 
+				// $(".publish").removeAttr("disabled");
+			})
+		}
+	</script>
+
+    <script type="text/javascript" charset="utf-8">
+
+	// If you want to prevent dragging, uncomment this section
+	/*
+	function preventBehavior(e) 
+	{ 
+      e.preventDefault(); 
+    };
+	document.addEventListener("touchmove", preventBehavior, false);
+	*/
+	
+	function onBodyLoad()
+	{
+		document.addEventListener("deviceready",onDeviceReady,false);
+		init()
+	}
+	
+	/* When this function is called, PhoneGap has been initialized and is ready to roll */
+	function onDeviceReady()
+	{
+	}
+    
+    </script>
+  </head>
+  <body onload="onBodyLoad()" style="margin:0">
+	<div id="button_bar" style="height:20%; z-index: 9999; background-color: #000">
+		<button style="z-index: 99999;" class="publish">Publish</button>
+			&nbsp;&nbsp;&nbsp;&nbsp;
+		<button style="z-index: 99999;" class="photo">Photo</button>
+			&nbsp;&nbsp;&nbsp;&nbsp;
+		<button style="z-index: 99999;" class="clear">Clear</button>	
+	</div>
+	<div id="faces" style="height: 40%;padding:2px;">
+		<img class="library_image" width="40" height="30" src="faces/trollface.gif"		face-id="1" />
+		<img class="library_image" width="40" height="30" src="faces/forever_alone.gif" face-id="2" />
+		<img class="library_image" width="40" height="30" src="faces/poker_face.gif" face-id="3" />
+		<img class="library_image" width="40" height="30" src="faces/challenge_accepted.gif" face-id="4" />
+		<img class="library_image" width="40" height="30" src="faces/fuck_yeah.gif" face-id="5" />
+	</div>
+	<div style="height:2px; z-index: 9999; background-color: #000">
+		&nbsp;
+	</div>
+	
+	<div id="comic">
+
+	</div>
+  </body>
+</html>

@@ -3,11 +3,11 @@ begin
 rescue LoadError
   require 'rubygems'
   require 'bundler'
-  require 'models/trollifier'
   Bundler.setup
 end
-
 require 'sinatra'
+require 'models/trollifier'
+
 
 RAGE_COMIC_DIR  = 'rage_comic'
 IMAGE_DIR       = 'images'
@@ -15,5 +15,5 @@ IMAGE_EXTENSION = 'png'
 
 
 post '/create' do
-  Trollifier.challenge_accepted
+  Trollifier.challenge_accepted(params)
 end

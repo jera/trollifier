@@ -9,4 +9,4 @@ config/s3_credentials.yml
 .bundle/
 Gemfile.lock
 .rvmrc
-images
+images/*.png

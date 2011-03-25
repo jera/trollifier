@@ -1,7 +1,7 @@
 GEM
   remote: http://rubygems.org/
   specs:
-    json (1.5.1)
+    mocha (0.9.12)
     rack (1.2.2)
     rack-test (0.5.7)
       rack (>= 1.0)
@@ -15,7 +15,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  json
+  mocha
   rack-test
   rmagick
   sinatra

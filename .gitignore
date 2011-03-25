@@ -1,0 +1,12 @@
+config/database.yml
+config/*.sphinx.conf
+config/s3_credentials.yml
+*~
+*.cache
+*.log
+*.pid
+.DS_Store
+.bundle/
+Gemfile.lock
+.rvmrc
+images

@@ -1,7 +1,8 @@
 source :rubygems
 
-gem "json"
-gem "sinatra"
+gem 'sinatra'
 
-gem "rack-test"
-gem "rmagick"
+gem 'rack-test'
+gem 'rmagick'
+
+gem 'mocha'

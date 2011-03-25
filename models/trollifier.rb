@@ -9,8 +9,9 @@ class Trollifier
     image_path  = File.join(IMAGE_DIR,"#{image_id}.#{IMAGE_EXTENSION}")
     
     params[:data].each do |data|
+      puts "#{data.inspect}"
       if have_image?(data)
-        join_images(image,read_image(data[:image]),data)
+        join_images(image,read_image(data['image']),data)
       end
       
       
@@ -30,19 +31,19 @@ class Trollifier
   
   def self.join_images(image,image_over,data={})
     data = {
-      :x => 0,
-      :y => 0,
-      :width => image_over.columns
+      'x' => 0,
+      'y' => 0,
+      'width' => image_over.columns
     }.merge(data)
     
     scale!(image_over,data)
 
-    image.composite!(image_over, data[:x], data[:y], Magick::OverCompositeOp)
+    image.composite!(image_over, data['x'].to_i, data['y'].to_i, Magick::OverCompositeOp)
   end
   
   def self.write_in_image(image,data)
     text = Magick::Draw.new
-    text.annotate(image, data[:width], 0, (data[:x]+1), (data[:y]+10), data[:text]) {
+    text.annotate(image, data['width'].to_i, 0, (data['x'].to_i+1), (data['y'].to_i+10), data['text']) {
       self.font_family  = 'Courier new'
       self.font_style   = Magick::NormalStyle
       self.font_weight  = 400
@@ -53,20 +54,20 @@ class Trollifier
   end
   
   def self.have_image?(data)
-    data && data.has_key?(:image) && data[:image].to_s != ""
+    data && data.has_key?('image') && data['image'].to_s != ""
   end
   
   def self.have_text?(data)
-    data && data.has_key?(:text) && data[:text].to_s != ""
+    data && data.has_key?('text') && data['text'].to_s != ""
   end
   
   def self.scale!(image,data)
     image.resize!(scale(image,data))
-    data[:height] = image.rows
+    data['height'] = image.rows
   end
   
   def self.scale(image,data)
-    (data[:width].to_f / image.columns)
+    (data['width'].to_f / image.columns)
   end
   
   def self.read_image(image)

@@ -15,5 +15,10 @@ IMAGE_EXTENSION = 'png'
 
 
 post '/create' do
-  Trollifier.challenge_accepted(params)
+  faces = []
+  params[:data].each do |k,v|
+    faces << v
+  end
+  
+  Trollifier.challenge_accepted({ :data => faces })
 end

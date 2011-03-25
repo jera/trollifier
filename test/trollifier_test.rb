@@ -99,7 +99,7 @@ class TrollifierTest < Test::Unit::TestCase
   end
   
   def rollback_image(image_path)
-    # system "open #{image_path}"
-    File.unlink(image_path)
+    system "open #{image_path}"
+    # File.unlink(image_path)
   end
 end

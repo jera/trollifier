@@ -76,8 +76,8 @@ class TrollifierTest < Test::Unit::TestCase
     params = { :data => [ 
       {:x => 10,  :y => 100, :width => 200, :image => 1},
       {:x => 100, :y => 120, :width => 100, :image => 2},
-      {:x => 73,  :y => 85, :width => 200, :text => "And i will be trolled"},
-      {:x => 100, :y => 400, :width => 200, :text => "I should hate ruby"}
+      {:x => 73,  :y => 85, :width => 200,  :text => "And i will be trolled"},
+      {:x => 100, :y => 400, :width => 200, :text => "I should hate ruby", :image => 2}
     ] }
     
     id = Trollifier.challenge_accepted(params)
@@ -99,7 +99,7 @@ class TrollifierTest < Test::Unit::TestCase
   end
   
   def rollback_image(image_path)
-    # system "open #{image_path}"
-    File.unlink(image_path)
+    system "open #{image_path}"
+    # File.unlink(image_path)
   end
 end
